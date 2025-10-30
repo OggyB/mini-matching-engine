@@ -5,8 +5,13 @@ from loguru import logger
 
 class FileManager:
     def __init__(self, filepath: str):
-        self.path = Path(filepath)
-        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.path = Path(filepath).resolve()
+        try:
+            if not self.path.parent.exists():
+                self.path.parent.mkdir(parents=True, exist_ok=True)
+                logger.debug(f"Created directory: {self.path.parent}")
+        except Exception as e:
+            logger.error(f"Failed to create directory {self.path.parent}: {e}")
 
     def write_json(self, data: dict | list, append: bool = True):
         mode = "a" if append else "w"
