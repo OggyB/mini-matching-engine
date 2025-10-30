@@ -8,6 +8,8 @@ from common.utils.file_manager import FileManager
 
 
 async def publish_orders(broker: NATSBroker, file_manager: FileManager):
+    """Read orders from file and publish them to NATS."""
+    # load orders from local file
     orders = file_manager.read_json()
 
     if not orders:
@@ -16,6 +18,7 @@ async def publish_orders(broker: NATSBroker, file_manager: FileManager):
 
     logger.info(f"Loaded {len(orders)} orders from file.")
 
+    # iterate through all orders and publish one by one
     for idx, order in enumerate(orders, start=1):
         try:
             await broker.publish(subject=settings.nats.orders_subject, message=order)
@@ -23,10 +26,13 @@ async def publish_orders(broker: NATSBroker, file_manager: FileManager):
         except Exception as e:
             logger.error(f"Failed to publish order #{idx}: {e}")
 
+        # small delay between messages to avoid flooding
         await asyncio.sleep(0.2)
 
 
 async def main():
+    """Main entrypoint for the order pusher."""
+    # setup file manager and NATS broker
     file_manager = FileManager(settings.engine.input_path)
     broker = NATSBroker(settings.nats)
     await broker.connect()
@@ -34,20 +40,24 @@ async def main():
 
     stop_event = asyncio.Event()
 
+    # graceful shutdown logic
     async def shutdown():
         logger.info("Shutting down gracefully.")
         stop_event.set()
 
+    # register OS signal handlers (Ctrl+C, SIGTERM)
     loop = asyncio.get_event_loop()
     for sig in (signal.SIGINT, signal.SIGTERM):
         loop.add_signal_handler(sig, lambda s=sig: asyncio.create_task(shutdown()))
 
     try:
+        # publish all orders sequentially
         await publish_orders(broker, file_manager)
         logger.info("All orders published successfully.")
     except asyncio.CancelledError:
         logger.warning("Publishing interrupted by cancel request.")
     finally:
+        # ensure NATS connection closed
         await broker.close()
         logger.info("NATS connection closed.")
 
@@ -56,6 +66,7 @@ async def main():
 
 if __name__ == "__main__":
     try:
+        # run event loop
         asyncio.run(main())
     except KeyboardInterrupt:
         logger.warning("Interrupted manually. Exiting.")

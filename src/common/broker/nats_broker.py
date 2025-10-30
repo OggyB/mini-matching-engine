@@ -13,12 +13,20 @@ from common.models.config import NatsConfig
 
 
 class NATSBroker(BaseBroker):
+    """
+    A simple NATS message broker.
+
+    Handles connection, publishing, subscribing, and health checks
+    for a NATS server.
+    """
     def __init__(self, cfg: NatsConfig):
+        """Initialize the NATS broker with given configuration."""
         super().__init__()
         self.client: Client | None = None
         self.config: NatsConfig = cfg
 
     async def connect(self) -> Client:
+        """Connect to the NATS server."""
         if self.client and self.client.is_connected:
             logger.info("NATS client is already connected.")
             return self.client
@@ -42,6 +50,7 @@ class NATSBroker(BaseBroker):
         return self.client
 
     async def close(self) -> None:
+        """Close the NATS connection safely."""
         if self.client:
             try:
                 if self.client.is_connected:
@@ -56,7 +65,9 @@ class NATSBroker(BaseBroker):
             except Exception as e:
                 logger.warning(f"Error while closing NATS connection: {e}")
 
-    async def publish(self, subject: str, message: dict | bytes | BaseModel):
+    async def publish(self, subject: str, message: dict | bytes | BaseModel) -> None:
+        """Publish a message to a NATS subject."""
+
         if not self.client or not self.client.is_connected:
             logger.warning("NATS not connected, attempting reconnect before publish...")
             await self.connect()
@@ -78,6 +89,7 @@ class NATSBroker(BaseBroker):
             raise
 
     async def subscribe(self, subject: str, handler: Callable[[Msg], Awaitable[None]]) -> None:
+        """Subscribe to a NATS subject with a message handler."""
         if not self.client or not self.client.is_connected:
             await self.connect()
 
@@ -89,6 +101,7 @@ class NATSBroker(BaseBroker):
             raise
 
     async def health_check(self) -> bool:
+        """Check the NATS connection health."""
         if not self.client:
             logger.warning(f"NATS client is not found.")
             raise

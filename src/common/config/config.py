@@ -4,6 +4,7 @@ from common.models.config import Settings
 
 
 def load_settings(file_path: str | Path | None = None) -> Settings:
+    """Application configuration loader for all modules."""
     base_dir = Path(__file__).resolve().parents[3]
     yaml_path = file_path or (base_dir / "settings.yaml")
 

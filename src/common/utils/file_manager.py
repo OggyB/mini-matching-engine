@@ -4,7 +4,11 @@ from loguru import logger
 
 
 class FileManager:
+    """
+    Simple file manager for reading and writing JSON lines.
+    """
     def __init__(self, filepath: str):
+        """Initialize the file manager."""
         self.path = Path(filepath).resolve()
         try:
             if not self.path.parent.exists():
@@ -13,7 +17,8 @@ class FileManager:
         except Exception as e:
             logger.error(f"Failed to create directory {self.path.parent}: {e}")
 
-    def write_json(self, data: dict | list, append: bool = True):
+    def write_json(self, data: dict | list, append: bool = True) -> None:
+        """ Write JSON data to file (line by line)."""
         mode = "a" if append else "w"
 
         try:
@@ -29,6 +34,7 @@ class FileManager:
             logger.error(f"Failed to write to {self.path}: {e}")
 
     def read_json(self) -> list[dict]:
+        """Read and parse all JSON lines from file."""
         if not self.path.exists():
             logger.error(f"File not found: {self.path}")
             return []
@@ -47,7 +53,8 @@ class FileManager:
         logger.info(f"Loaded {len(items)} records from {self.path}")
         return items
 
-    def clear(self):
+    def clear(self) -> None:
+        """Clear all file contents."""
         try:
             self.path.write_text("")
             logger.debug(f"Cleared file: {self.path}")
