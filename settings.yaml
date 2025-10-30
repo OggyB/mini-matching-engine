@@ -1,0 +1,14 @@
+nats:
+  url: "nats://localhost:4222"
+  orders_subject: "orders.in"
+  consume_subject: "orders.in"
+  trades_subject: "trades.out"
+  connection:
+    reconnect: true
+    max_reconnect_attempts: 5
+    reconnect_wait_ms: 500
+    timeout_ms: 2000
+
+engine:
+  input_path: "data/sample.ndjson"
+  output_path: "data/trades.ndjson"

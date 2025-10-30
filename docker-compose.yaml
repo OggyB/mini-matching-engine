@@ -1,0 +1,52 @@
+version: "3.9"
+
+networks:
+  matcher-net:
+    driver: bridge
+
+services:
+  nats:
+    image: nats:2.10.24-alpine
+    container_name: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: ["--http_port", "8222"]
+    networks:
+      - matcher-net
+
+  engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: matching-engine
+    command: ["python", "-m", "src.engine.main"]
+    depends_on:
+      - nats
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app/src
+    volumes:
+      - ./settings.yaml:/app/settings.yaml
+      - ./src/engine/data:/app/data
+    networks:
+      - matcher-net
+    restart: unless-stopped
+
+  pusher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: order-pusher
+    command: ["python", "-m", "src.pusher.main"]
+    depends_on:
+      - nats
+      - engine
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app/src
+    volumes:
+      - ./settings.yaml:/app/settings.yaml
+      - ./src/pusher/data:/app/data
+    networks:
+      - matcher-net

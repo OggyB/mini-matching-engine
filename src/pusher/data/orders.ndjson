@@ -1,0 +1,11 @@
+{"type":"create","ts":1000,"seq":1,"symbol":"ABC","side":"B","order_id":"B1","price":100,"qty":10}
+{"type":"create","ts":1010,"seq":2,"symbol":"ABC","side":"S","order_id":"S1","price":101,"qty":5}
+{"type":"create","ts":1020,"seq":3,"symbol":"ABC","side":"S","order_id":"S2","price":99,"qty":7}
+{"type":"cancel","ts":1030,"seq":4,"symbol":"ABC","order_id":"S1"}
+{"type":"create","ts":1040,"seq":5,"symbol":"ABC","side":"B","order_id":"B2","price":101,"qty":2}
+{"type":"amend","ts":1050,"seq":6,"symbol":"ABC","order_id":"B2","qty":5}
+{"type":"create","ts":1060,"seq":7,"symbol":"ABC","side":"S","order_id":"S3","price":101,"qty":4}
+{"type":"create","ts":1070,"seq":8,"symbol":"ABC","side":"S","order_id":"S4","price":100,"qty":20}
+{"type":"create","ts":1080,"seq":9,"symbol":"ABC","side":"B","order_id":"B3","price":100,"qty":10}
+{"type":"create","ts":1090,"seq":10,"symbol":"ABC","side":"B","order_id":"B4","price":99,"qty":11}
+{"type":"create","ts":1110,"seq":12,"symbol":"ABC","side":"B","order_id":"B4","price":99,"qty":11}
